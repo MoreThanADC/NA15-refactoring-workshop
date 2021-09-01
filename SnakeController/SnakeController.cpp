@@ -38,13 +38,8 @@ void Controller::setPosition() {
     m_mapDimension = std::make_pair(width, height);
     m_foodPosition = std::make_pair(foodX, foodY);
 }
-
-void Controller::createMap(std::istringstream& istr) {
-    if (w == 'W' and f == 'F' and s == 'S') {
-        setPosition();
-        
-
-        switch (d) {
+void Controller::chooseDirection() {
+    switch (d) {
         case 'U':
             m_currentDirection = Direction_UP;
             break;
@@ -60,7 +55,11 @@ void Controller::createMap(std::istringstream& istr) {
         default:
             throw ConfigurationError();
         }
-
+}
+void Controller::createMap(std::istringstream& istr) {
+    if (w == 'W' and f == 'F' and s == 'S') {
+        setPosition();
+        chooseDirection();
         checkLength(istr);
     } else {
         throw ConfigurationError();

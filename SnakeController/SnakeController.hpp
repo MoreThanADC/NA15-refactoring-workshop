@@ -34,6 +34,7 @@ public:
     void createMap(std::istringstream& istr); // 
     void checkLength(std::istringstream& istr); //
     void setPosition(); //
+    void chooseDirection(); //
     
 
     void receive(std::unique_ptr<Event> e) override;
