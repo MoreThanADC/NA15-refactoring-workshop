@@ -39,6 +39,7 @@ public:
     
     
     void checkCollision(Segment& newHead); // 
+    bool isThereFood(Segment& newHead); //
     void eatFood(Segment& newHead); //
 
     void receive(std::unique_ptr<Event> e) override;

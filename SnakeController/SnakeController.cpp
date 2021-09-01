@@ -75,10 +75,13 @@ void Controller::checkCollision(Segment& newHead) {
         }
     }
 }
+bool Controller::isThereFood(Segment& newHead) {
+    return std::make_pair(newHead.x, newHead.y) == m_foodPosition;
+}
 
 void Controller::eatFood(Segment& newHead) {
     if (not lost) {
-        if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
+        if (isThereFood(newHead)) {
             m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
             m_foodPort.send(std::make_unique<EventT<FoodReq>>());
         } else if (newHead.x < 0 or newHead.y < 0 or
