@@ -32,6 +32,8 @@ public:
     
     void setData(std::istringstream& istr);//
     void createMap(std::istringstream& istr); // 
+    void checkLength(std::istringstream& istr); //
+    void setPosition(); //
     
 
     void receive(std::unique_ptr<Event> e) override;

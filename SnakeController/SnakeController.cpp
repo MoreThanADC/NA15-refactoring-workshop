@@ -26,11 +26,23 @@ void Controller::setData(std::istringstream& istr) {
     istr >> d;
     istr >> length;
 }
+void Controller::checkLength(std::istringstream& istr) {
+    while (length) {
+        Segment seg;
+        istr >> seg.x >> seg.y;
+        seg.ttl = length--;
+        m_segments.push_back(seg);
+    }
+}
+void Controller::setPosition() {
+    m_mapDimension = std::make_pair(width, height);
+    m_foodPosition = std::make_pair(foodX, foodY);
+}
 
 void Controller::createMap(std::istringstream& istr) {
     if (w == 'W' and f == 'F' and s == 'S') {
-        m_mapDimension = std::make_pair(width, height);
-        m_foodPosition = std::make_pair(foodX, foodY);
+        setPosition();
+        
 
         switch (d) {
         case 'U':
@@ -49,13 +61,7 @@ void Controller::createMap(std::istringstream& istr) {
             throw ConfigurationError();
         }
 
-        while (length) {
-            Segment seg;
-            istr >> seg.x >> seg.y;
-            seg.ttl = length--;
-
-            m_segments.push_back(seg);
-        }
+        checkLength(istr);
     } else {
         throw ConfigurationError();
     }
