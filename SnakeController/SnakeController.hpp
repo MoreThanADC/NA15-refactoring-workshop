@@ -24,6 +24,7 @@ struct UnexpectedEventException : std::runtime_error
 
 class Controller : public IEventHandler
 {
+    struct Segment;
 public:
     Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config);
 
@@ -36,7 +37,8 @@ public:
     void setPosition(); //
     void chooseDirection(); //
     
-
+    
+    void checkCollision(Segment& newHead); // 
     void receive(std::unique_ptr<Event> e) override;
     void chooseTheDirection();
 
@@ -59,6 +61,8 @@ private:
 
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
+
+    bool lost = false; //
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;

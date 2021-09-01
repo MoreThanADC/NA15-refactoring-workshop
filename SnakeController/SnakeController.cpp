@@ -40,21 +40,21 @@ void Controller::setPosition() {
 }
 void Controller::chooseDirection() {
     switch (d) {
-        case 'U':
-            m_currentDirection = Direction_UP;
-            break;
-        case 'D':
-            m_currentDirection = Direction_DOWN;
-            break;
-        case 'L':
-            m_currentDirection = Direction_LEFT;
-            break;
-        case 'R':
-            m_currentDirection = Direction_RIGHT;
-            break;
-        default:
-            throw ConfigurationError();
-        }
+    case 'U':
+        m_currentDirection = Direction_UP;
+        break;
+    case 'D':
+        m_currentDirection = Direction_DOWN;
+        break;
+    case 'L':
+        m_currentDirection = Direction_LEFT;
+        break;
+    case 'R':
+        m_currentDirection = Direction_RIGHT;
+        break;
+    default:
+        throw ConfigurationError();
+    }
 }
 void Controller::createMap(std::istringstream& istr) {
     if (w == 'W' and f == 'F' and s == 'S') {
@@ -66,6 +66,15 @@ void Controller::createMap(std::istringstream& istr) {
     }
 }
 
+void Controller::checkCollision(Segment& newHead) {
+    for (auto segment : m_segments) {
+        if (segment.x == newHead.x and segment.y == newHead.y) {
+            m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+            lost = true;
+            break;
+        }
+    }
+}
 void Controller::receive(std::unique_ptr<Event> e) {
     try {
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
@@ -76,16 +85,8 @@ void Controller::receive(std::unique_ptr<Event> e) {
         newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
         newHead.y = currentHead.y + (not(m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
         newHead.ttl = currentHead.ttl;
-
-        bool lost = false;
-
-        for (auto segment : m_segments) {
-            if (segment.x == newHead.x and segment.y == newHead.y) {
-                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-                lost = true;
-                break;
-            }
-        }
+        
+        checkCollision(newHead);
 
         if (not lost) {
             if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
