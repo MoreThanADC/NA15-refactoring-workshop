@@ -39,6 +39,8 @@ public:
     
     
     void checkCollision(Segment& newHead); // 
+    void eatFood(Segment& newHead); //
+
     void receive(std::unique_ptr<Event> e) override;
     void chooseTheDirection();
 

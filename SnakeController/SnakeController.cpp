@@ -75,6 +75,31 @@ void Controller::checkCollision(Segment& newHead) {
         }
     }
 }
+
+void Controller::eatFood(Segment& newHead) {
+    if (not lost) {
+        if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
+            m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
+            m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+        } else if (newHead.x < 0 or newHead.y < 0 or
+                   newHead.x >= m_mapDimension.first or
+                   newHead.y >= m_mapDimension.second) {
+            m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+            lost = true;
+        } else {
+            for (auto& segment : m_segments) {
+                if (not --segment.ttl) {
+                    DisplayInd l_evt;
+                    l_evt.x = segment.x;
+                    l_evt.y = segment.y;
+                    l_evt.value = Cell_FREE;
+
+                    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(l_evt));
+                }
+            }
+        }
+    }
+}
 void Controller::receive(std::unique_ptr<Event> e) {
     try {
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
@@ -85,31 +110,9 @@ void Controller::receive(std::unique_ptr<Event> e) {
         newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
         newHead.y = currentHead.y + (not(m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
         newHead.ttl = currentHead.ttl;
-        
+
         checkCollision(newHead);
-
-        if (not lost) {
-            if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
-                m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
-                m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-            } else if (newHead.x < 0 or newHead.y < 0 or
-                       newHead.x >= m_mapDimension.first or
-                       newHead.y >= m_mapDimension.second) {
-                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-                lost = true;
-            } else {
-                for (auto& segment : m_segments) {
-                    if (not --segment.ttl) {
-                        DisplayInd l_evt;
-                        l_evt.x = segment.x;
-                        l_evt.y = segment.y;
-                        l_evt.value = Cell_FREE;
-
-                        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(l_evt));
-                    }
-                }
-            }
-        }
+        eatFood(newHead);
 
         if (not lost) {
             m_segments.push_front(newHead);
