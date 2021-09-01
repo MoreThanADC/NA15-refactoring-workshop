@@ -29,8 +29,11 @@ public:
 
     Controller(Controller const& p_rhs) = delete;
     Controller& operator=(Controller const& p_rhs) = delete;
+    
+    void createMap(std::string const& p_config); // 
 
     void receive(std::unique_ptr<Event> e) override;
+    void chooseTheDirection();
 
 private:
     struct Segment

@@ -21,6 +21,10 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
       m_foodPort(p_foodPort),
       m_scorePort(p_scorePort)
 {
+    createMap(p_config);
+}
+
+void Controller::createMap(std::string const& p_config) {
     std::istringstream istr(p_config);
     char w, f, s, d;
 
@@ -31,7 +35,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     if (w == 'W' and f == 'F' and s == 'S') {
         m_mapDimension = std::make_pair(width, height);
         m_foodPosition = std::make_pair(foodX, foodY);
-
+        
         istr >> d;
         switch (d) {
             case 'U':
@@ -62,6 +66,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
         throw ConfigurationError();
     }
 }
+
 
 void Controller::receive(std::unique_ptr<Event> e)
 {
