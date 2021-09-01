@@ -30,7 +30,9 @@ public:
     Controller(Controller const& p_rhs) = delete;
     Controller& operator=(Controller const& p_rhs) = delete;
     
-    void createMap(std::string const& p_config); // 
+    void setData(std::istringstream& istr);//
+    void createMap(std::istringstream& istr); // 
+    
 
     void receive(std::unique_ptr<Event> e) override;
     void chooseTheDirection();

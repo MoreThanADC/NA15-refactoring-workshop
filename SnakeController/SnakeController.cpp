@@ -6,51 +6,48 @@
 #include "EventT.hpp"
 #include "IPort.hpp"
 
-namespace Snake
-{
+namespace Snake {
 ConfigurationError::ConfigurationError()
-    : std::logic_error("Bad configuration of Snake::Controller.")
-{}
+    : std::logic_error("Bad configuration of Snake::Controller.") {}
 
 UnexpectedEventException::UnexpectedEventException()
-    : std::runtime_error("Unexpected event received!")
-{}
+    : std::runtime_error("Unexpected event received!") {}
 
 Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config)
     : m_displayPort(p_displayPort),
       m_foodPort(p_foodPort),
-      m_scorePort(p_scorePort)
-{
-    createMap(p_config);
+      m_scorePort(p_scorePort) {
+    std::istringstream istr(p_config);
+    setData(istr);
+    createMap(istr);
+}
+void Controller::setData(std::istringstream& istr) {
+    istr >> w >> width >> height >> f >> foodX >> foodY >> s;
+    istr >> d;
+    istr >> length;
 }
 
-void Controller::createMap(std::string const& p_config) {
-    std::istringstream istr(p_config);
-   
-    istr >> w >> width >> height >> f >> foodX >> foodY >> s;
-
+void Controller::createMap(std::istringstream& istr) {
     if (w == 'W' and f == 'F' and s == 'S') {
         m_mapDimension = std::make_pair(width, height);
         m_foodPosition = std::make_pair(foodX, foodY);
-        
-        istr >> d;
+
         switch (d) {
-            case 'U':
-                m_currentDirection = Direction_UP;
-                break;
-            case 'D':
-                m_currentDirection = Direction_DOWN;
-                break;
-            case 'L':
-                m_currentDirection = Direction_LEFT;
-                break;
-            case 'R':
-                m_currentDirection = Direction_RIGHT;
-                break;
-            default:
-                throw ConfigurationError();
+        case 'U':
+            m_currentDirection = Direction_UP;
+            break;
+        case 'D':
+            m_currentDirection = Direction_DOWN;
+            break;
+        case 'L':
+            m_currentDirection = Direction_LEFT;
+            break;
+        case 'R':
+            m_currentDirection = Direction_RIGHT;
+            break;
+        default:
+            throw ConfigurationError();
         }
-        istr >> length;
 
         while (length) {
             Segment seg;
@@ -64,9 +61,7 @@ void Controller::createMap(std::string const& p_config) {
     }
 }
 
-
-void Controller::receive(std::unique_ptr<Event> e)
-{
+void Controller::receive(std::unique_ptr<Event> e) {
     try {
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
 
@@ -74,7 +69,7 @@ void Controller::receive(std::unique_ptr<Event> e)
 
         Segment newHead;
         newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.y = currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
+        newHead.y = currentHead.y + (not(m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
         newHead.ttl = currentHead.ttl;
 
         bool lost = false;
@@ -97,7 +92,7 @@ void Controller::receive(std::unique_ptr<Event> e)
                 m_scorePort.send(std::make_unique<EventT<LooseInd>>());
                 lost = true;
             } else {
-                for (auto &segment : m_segments) {
+                for (auto& segment : m_segments) {
                     if (not --segment.ttl) {
                         DisplayInd l_evt;
                         l_evt.x = segment.x;
@@ -123,7 +118,7 @@ void Controller::receive(std::unique_ptr<Event> e)
                 std::remove_if(
                     m_segments.begin(),
                     m_segments.end(),
-                    [](auto const& segment){ return not (segment.ttl > 0); }),
+                    [](auto const& segment) { return not(segment.ttl > 0); }),
                 m_segments.end());
         }
     } catch (std::bad_cast&) {
@@ -194,4 +189,4 @@ void Controller::receive(std::unique_ptr<Event> e)
     }
 }
 
-} // namespace Snake
+}  // namespace Snake
