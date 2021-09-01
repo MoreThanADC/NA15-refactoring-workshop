@@ -26,10 +26,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
 
 void Controller::createMap(std::string const& p_config) {
     std::istringstream istr(p_config);
-    char w, f, s, d;
-
-    int width, height, length;
-    int foodX, foodY;
+   
     istr >> w >> width >> height >> f >> foodX >> foodY >> s;
 
     if (w == 'W' and f == 'F' and s == 'S') {

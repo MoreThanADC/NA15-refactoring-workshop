@@ -43,6 +43,11 @@ private:
         int ttl;
     };
 
+    char w, f, s, d;//
+
+    int width, height, length;//
+    int foodX, foodY; //
+
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
