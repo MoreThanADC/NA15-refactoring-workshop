@@ -1,32 +1,31 @@
 #pragma once
 
+#include <functional>
 #include <list>
 #include <memory>
-#include <functional>
 #include <stdexcept>
 
 #include "IEventHandler.hpp"
 #include "SnakeInterface.hpp"
+#include "Segments.hpp"
+#include "World.hpp"
 
 class Event;
 class IPort;
 
-namespace Snake
-{
-struct ConfigurationError : std::logic_error
-{
+namespace Snake {
+struct ConfigurationError : std::logic_error {
     ConfigurationError();
 };
 
-struct UnexpectedEventException : std::runtime_error
-{
+struct UnexpectedEventException : std::runtime_error {
     UnexpectedEventException();
 };
 
-class Controller : public IEventHandler
-{
+class Controller : public IEventHandler {
 public:
-    Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config);
+    Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config,
+                std::unique_ptr<World> world,  std::unique_ptr<Segments> segments);
 
     Controller(Controller const& p_rhs) = delete;
     Controller& operator=(Controller const& p_rhs) = delete;
@@ -34,20 +33,13 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+    std::unique_ptr<World> world_ = nullptr;
+    std::unique_ptr<Segments> segments_ = nullptr;
+
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
-
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
     Direction m_currentDirection;
 
     void handleTimeoutInd();
@@ -56,20 +48,7 @@ private:
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
-    bool isSegmentAtPosition(int x, int y) const;
-    Segment calculateNewHead() const;
-    void updateSegmentsIfSuccessfullMove(Segment const& newHead);
-    void addHeadSegment(Segment const& newHead);
-    void removeTailSegmentIfNotScored(Segment const& newHead);
-    void removeTailSegment();
-
-    bool isPositionOutsideMap(int x, int y) const;
-
-    void updateFoodPosition(int x, int y, std::function<void()> clearPolicy);
-    void sendClearOldFood();
-    void sendPlaceNewFood(int x, int y);
-
     bool m_paused;
 };
 
-} // namespace Snake
+}  // namespace Snake
