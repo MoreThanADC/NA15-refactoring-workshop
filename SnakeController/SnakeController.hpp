@@ -42,6 +42,7 @@ public:
     bool isThereFood(Segment& newHead);         //
     void eatFood(Segment& newHead);             //
     void makeNewHead(Segment currentHead, Segment& newHead);  //
+    void removeSegment(); //
 
     void receive(std::unique_ptr<Event> e) override;
     void chooseTheDirection();

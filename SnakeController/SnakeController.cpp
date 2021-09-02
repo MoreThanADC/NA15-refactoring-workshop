@@ -105,9 +105,18 @@ void Controller::eatFood(Segment& newHead) {
     }
 }
 void Controller::makeNewHead(Segment currentHead, Segment& newHead) {
-        newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.y = currentHead.y + (not(m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.ttl = currentHead.ttl;
+    newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
+    newHead.y = currentHead.y + (not(m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
+    newHead.ttl = currentHead.ttl;
+}
+
+void Controller::removeSegment() {
+    m_segments.erase(
+        std::remove_if(
+            m_segments.begin(),
+            m_segments.end(),
+            [](auto const& segment) { return not(segment.ttl > 0); }),
+        m_segments.end());
 }
 void Controller::receive(std::unique_ptr<Event> e) {
     try {
@@ -127,13 +136,7 @@ void Controller::receive(std::unique_ptr<Event> e) {
             placeNewHead.value = Cell_SNAKE;
 
             m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
-
-            m_segments.erase(
-                std::remove_if(
-                    m_segments.begin(),
-                    m_segments.end(),
-                    [](auto const& segment) { return not(segment.ttl > 0); }),
-                m_segments.end());
+            removeSegment();
         }
     } catch (std::bad_cast&) {
         try {
