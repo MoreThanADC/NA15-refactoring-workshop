@@ -39,6 +39,7 @@ void Controller::setPosition() {
     m_foodPosition = std::make_pair(foodX, foodY);
 }
 void Controller::chooseDirection() {
+    // there is probably any problem, because i don't have: itsr >> d, when i put it to this function all tests fail :D
     switch (d) {
     case 'U':
         m_currentDirection = Direction_UP;
@@ -103,17 +104,18 @@ void Controller::eatFood(Segment& newHead) {
         }
     }
 }
+void Controller::makeNewHead(Segment currentHead, Segment& newHead) {
+        newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
+        newHead.y = currentHead.y + (not(m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
+        newHead.ttl = currentHead.ttl;
+}
 void Controller::receive(std::unique_ptr<Event> e) {
     try {
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
 
         Segment const& currentHead = m_segments.front();
-
         Segment newHead;
-        newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.y = currentHead.y + (not(m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.ttl = currentHead.ttl;
-
+        makeNewHead(currentHead, newHead);
         checkCollision(newHead);
         eatFood(newHead);
 

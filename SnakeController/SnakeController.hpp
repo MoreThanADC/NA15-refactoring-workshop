@@ -10,53 +10,47 @@
 class Event;
 class IPort;
 
-namespace Snake
-{
-struct ConfigurationError : std::logic_error
-{
+namespace Snake {
+struct ConfigurationError : std::logic_error {
     ConfigurationError();
 };
 
-struct UnexpectedEventException : std::runtime_error
-{
+struct UnexpectedEventException : std::runtime_error {
     UnexpectedEventException();
 };
 
-class Controller : public IEventHandler
-{
-    struct Segment;
-public:
-    Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config);
-
-    Controller(Controller const& p_rhs) = delete;
-    Controller& operator=(Controller const& p_rhs) = delete;
-    
-    void setData(std::istringstream& istr);//
-    void createMap(std::istringstream& istr); // 
-    void checkLength(std::istringstream& istr); //
-    void setPosition(); //
-    void chooseDirection(); //
-    
-    
-    void checkCollision(Segment& newHead); // 
-    bool isThereFood(Segment& newHead); //
-    void eatFood(Segment& newHead); //
-
-    void receive(std::unique_ptr<Event> e) override;
-    void chooseTheDirection();
-
-private:
-    struct Segment
-    {
+class Controller : public IEventHandler {
+    struct Segment {
         int x;
         int y;
         int ttl;
     };
 
-    char w, f, s, d;//
+public:
+    Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config);
 
-    int width, height, length;//
-    int foodX, foodY; //
+    Controller(Controller const& p_rhs) = delete;
+    Controller& operator=(Controller const& p_rhs) = delete;
+
+    void setData(std::istringstream& istr);      //
+    void createMap(std::istringstream& istr);    //
+    void checkLength(std::istringstream& istr);  //
+    void setPosition();                          //
+    void chooseDirection();                      //
+
+    void checkCollision(Segment& newHead);      //
+    bool isThereFood(Segment& newHead);         //
+    void eatFood(Segment& newHead);             //
+    void makeNewHead(Segment currentHead, Segment& newHead);  //
+
+    void receive(std::unique_ptr<Event> e) override;
+    void chooseTheDirection();
+
+private:
+    char w, f, s, d;  //
+
+    int width, height, length;  //
+    int foodX, foodY;           //
 
     IPort& m_displayPort;
     IPort& m_foodPort;
@@ -65,10 +59,10 @@ private:
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
 
-    bool lost = false; //
+    bool lost = false;  //
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
 };
 
-} // namespace Snake
+}  // namespace Snake
