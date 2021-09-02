@@ -109,7 +109,15 @@ void Controller::makeNewHead(Segment currentHead, Segment& newHead) {
     newHead.y = currentHead.y + (not(m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
     newHead.ttl = currentHead.ttl;
 }
+void Controller::addSegment(Segment& newHead) {
+    m_segments.push_front(newHead);
+    DisplayInd placeNewHead;
+    placeNewHead.x = newHead.x;
+    placeNewHead.y = newHead.y;
+    placeNewHead.value = Cell_SNAKE;
 
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+}
 void Controller::removeSegment() {
     m_segments.erase(
         std::remove_if(
@@ -129,13 +137,7 @@ void Controller::receive(std::unique_ptr<Event> e) {
         eatFood(newHead);
 
         if (not lost) {
-            m_segments.push_front(newHead);
-            DisplayInd placeNewHead;
-            placeNewHead.x = newHead.x;
-            placeNewHead.y = newHead.y;
-            placeNewHead.value = Cell_SNAKE;
-
-            m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+            addSegment(newHead);
             removeSegment();
         }
     } catch (std::bad_cast&) {

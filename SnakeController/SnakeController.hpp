@@ -43,6 +43,7 @@ public:
     void eatFood(Segment& newHead);             //
     void makeNewHead(Segment currentHead, Segment& newHead);  //
     void removeSegment(); //
+    void addSegment(Segment& newHead);//
 
     void receive(std::unique_ptr<Event> e) override;
     void chooseTheDirection();
