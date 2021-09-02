@@ -37,6 +37,7 @@ private:
     void handleDirectionChange(const DirectionInd&);
     void handleFoodPositionChange(const FoodInd& receivedFood);
     void handleNewFood(const FoodResp& requestedFood);
+    void handlePause(const PauseInd& pauseInd);
 
     struct Segment
     {
@@ -44,7 +45,7 @@ private:
         int y;
         int ttl;
     };
-
+    
     Segment getNewHead() const;
     bool doesCollideWithSnake(const Segment& newSegment) const;
     bool doesCollideWithWall(const Segment& newSegment) const;
@@ -66,6 +67,7 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+    bool isPaused = false;
 };
 
 } // namespace Snake

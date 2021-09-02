@@ -33,6 +33,7 @@ public:
 
 private:
     std::unique_ptr<T> m_payload;
+    
 };
 
 template <class T>
