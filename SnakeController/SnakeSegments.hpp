@@ -1,7 +1,7 @@
 #pragma once
 
 #include <list>
-
+#include <string>
 #include "SnakeInterface.hpp"
 #include "SnakePosition.hpp"
 
@@ -20,6 +20,7 @@ public:
     Position removeTail();
     void updateDirection(Direction newDirection);
     unsigned size() const;
+    std::string recivedPoints();
 private:
     Direction m_headDirection;
     std::list<Position> m_segments;

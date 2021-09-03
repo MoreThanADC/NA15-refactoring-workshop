@@ -1,6 +1,7 @@
 #include "SnakeSegments.hpp"
 
 #include <algorithm>
+#include <string>
 
 namespace Snake
 {
@@ -78,5 +79,12 @@ unsigned Segments::size() const
 {
     return m_segments.size();
 }
+// Ye, this is probably bad idea, but i don't have better idea how to send score to client
+std::string Segments::recivedPoints() {
+    size_t numberOfSegments = m_segments.size();
+    std::string s = std::to_string(numberOfSegments);
+    return s;
+}
+
 
 } // namespace Snake
